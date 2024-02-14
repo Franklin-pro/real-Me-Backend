@@ -10,6 +10,7 @@ router.get("/",UserController.getAllUser)
 router.get("/:id",UserController.getOneUser)
 router.delete("/",UserController.deleteAllUser)
 router.delete("/:id",UserController.deleteOneUser)
+router.post("/login",UserController.login)
 
 export default router
 

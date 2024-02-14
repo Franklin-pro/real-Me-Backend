@@ -2,7 +2,8 @@ import express from "express";
 import USER from "../model/user";
 import errorMessage from "../utils/errorMessage";
 import successMessage from "../utils/successMessage";
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcrypt';
+import jwt from "jsonwebtoken";
 
 class UserController {
     static async userCreate(req, res) {
@@ -66,6 +67,34 @@ class UserController {
             return successMessage(res,200,`user deleted ${user.firstName}`)
         }else{
             return errorMessage(res,201,`user not deleted`)
+        }
+    }
+
+    static async login(req,res){
+        try {
+            const {email,passWord}=req.body
+            const user = await USER.findOne({email})
+
+            if(!user){
+                return errorMessage(res,401,`invalid email or password`)
+            }
+            else{
+                const comparePassword = bcrypt.compareSync(passWord,user.passWord)
+                if(!comparePassword){
+                    return errorMessage(res,401,`invalid email or password`)
+                }
+                else{
+                    const token = jwt.sign({user:user},process.env.SECRET_KEY,{expiresIn:"1d"})
+                    res.status(200).json({
+                        token:token,
+                        data:{
+                            user:user
+                        }
+                    })
+                }
+            }
+        } catch (error) {
+            
         }
     }
 }
